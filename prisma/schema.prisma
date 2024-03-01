@@ -1,0 +1,165 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Roles {
+  id_rol      Int        @id @default(autoincrement())
+  nombre      String
+  descripcion String?
+  is_active   Boolean    @default(true)
+  usuarios    Usuarios[]
+}
+
+model Usuarios {
+  id_usuario       Int                 @id @default(autoincrement())
+  codigo           String              @unique
+  id_rol           Int
+  nombre           String
+  apellido         String
+  telefono         String?
+  email            String              @unique @default("")
+  password         String?
+  imagen           String              @default("")
+  is_active        Boolean             @default(true)
+  created_at       DateTime            @default(now())
+  updated_at       DateTime            @updatedAt
+  account_provider Account_provider    @default(EMAIL)
+  comentarios      Comentarios[]
+  likes            Comentarios_Likes[]
+  Favoritos        Favoritos[]
+  role             Roles               @relation(fields: [id_rol], references: [id_rol])
+}
+
+model Categorias {
+  id_categoria  Int             @id @default(autoincrement())
+  nombre        String
+  codigo        String          @unique
+  descripcion   String?
+  imagen        String
+  is_active     Boolean         @default(true)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  Productos     Productos[]
+  Subcategorias Subcategorias[]
+}
+
+model Subcategorias {
+  id_subcategoria Int         @id @default(autoincrement())
+  id_categoria    Int
+  codigo          String
+  nombre          String
+  is_active       Boolean     @default(true)
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  Productos       Productos[]
+  categoria       Categorias  @relation(fields: [id_categoria], references: [id_categoria])
+}
+
+model Marcas {
+  id_marca    Int         @id @default(autoincrement())
+  nombre      String
+  codigo      String      @unique
+  descripcion String?
+  imagen      String
+  is_active   Boolean     @default(true)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  Productos   Productos[]
+}
+
+model Productos {
+  id_producto          Int            @id @default(autoincrement())
+  codigo               String         @unique
+  id_categoria         Int
+  id_subcategoria      Int
+  id_marca             Int
+  nombre               String
+  descripcion          String?
+  portada              String?
+  precio               Float
+  stock                Int
+  created_at           DateTime       @default(now())
+  updated_at           DateTime       @updatedAt
+  estado               ProductoStatus @default(PUBLICADO)
+  porcentaje_descuento Float          @default(0)
+
+  comentarios  Comentarios[]
+  imagenes     Producto_imagenes[]
+  favoritos    Favoritos[]
+  categoria    Categorias          @relation(fields: [id_categoria], references: [id_categoria])
+  marca        Marcas              @relation(fields: [id_marca], references: [id_marca])
+  subcategoria Subcategorias       @relation(fields: [id_subcategoria], references: [id_subcategoria])
+}
+
+model Descuentos {
+  id_descuento Int       @id @default(autoincrement())
+  id_producto  Int
+  porcentaje   Float
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime? @updatedAt @db.Timetz(6)
+  Estado       Estado?   @default(ACTIVO)
+}
+
+model Comentarios {
+  id_comentario Int                 @id @default(autoincrement())
+  id_producto   Int
+  id_usuario    Int
+  comentario    String?
+  calificacion  Int
+  created_at    DateTime            @default(now())
+  updated_at    DateTime            @updatedAt
+  producto      Productos           @relation(fields: [id_producto], references: [id_producto])
+  usuario       Usuarios            @relation(fields: [id_usuario], references: [id_usuario])
+  likes         Comentarios_Likes[]
+}
+
+model Comentarios_Likes {
+  id_comentario_like Int         @id @default(autoincrement())
+  id_comentario      Int
+  id_usuario         Int
+  created_at         DateTime    @default(now())
+  comentario         Comentarios @relation(fields: [id_comentario], references: [id_comentario])
+  usuario            Usuarios    @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+model Producto_imagenes {
+  id_producto_imagen Int       @id @default(autoincrement())
+  id_producto        Int
+  source             String
+  created_at         DateTime  @default(now())
+  producto           Productos @relation(fields: [id_producto], references: [id_producto], onDelete: Cascade)
+}
+
+model Favoritos {
+  id_favorito Int      @id @default(autoincrement())
+  id_producto Int
+  id_usuario  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  producto Productos @relation(fields: [id_producto], references: [id_producto])
+  usuario  Usuarios  @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+enum Account_provider {
+  GOOGLE
+  FACEBOOK
+  EMAIL
+}
+
+enum ProductoStatus {
+  PUBLICADO
+  ARCHIVADO
+  ELIMINADO
+}
+
+enum Estado {
+  ACTIVO
+  INACTIVO
+}

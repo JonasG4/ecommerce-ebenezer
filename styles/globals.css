@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .skeleton {
+    @apply after:content-[''] rounded-md after:top-0 after:left-0 after:w-full after:h-full after:z-10 after:absolute after:bg-gradient-to-r after:from-slate-200 after:via-slate-50 after:to-slate-200 after:rounded-md after:animate-skeleton-loading after:bg-[length:200%];
+  }
+  .skeleton-dark {
+    @apply after:content-[''] rounded-md after:top-0 after:left-0 after:w-full after:h-full after:z-10 after:absolute after:bg-gradient-to-r after:from-zinc-600 after:via-zinc-700 after:to-zinc-600  after:rounded-md after:animate-skeleton-loading after:bg-[length:200%];
+  }
+  .botom-tooltip {
+    @apply before:hidden before:whitespace-nowrap before:leading-3 hover:before:block before:absolute before:text-xs before:font-light before:text-white before:top-7  before:h-[20px] before:rounded-md before:py-1 before:px-2 before:bg-slate-700/80;
+  }
+  .blue-scrollbar {
+    @apply scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-thumb-rounded-full scrollbar-track-gray-200;
+  }
+}
+
