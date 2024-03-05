@@ -140,8 +140,8 @@ model Favoritos {
   id_favorito Int      @id @default(autoincrement())
   id_producto Int
   id_usuario  Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   producto Productos @relation(fields: [id_producto], references: [id_producto])
   usuario  Usuarios  @relation(fields: [id_usuario], references: [id_usuario])

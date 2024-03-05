@@ -20,7 +20,7 @@ export async function POST(request) {
                 },
                 usuario: {
                     connect: {
-                        id_usuario: body.id_usuario
+                        codigo: body.id_usuario
                     }
                 }
             }

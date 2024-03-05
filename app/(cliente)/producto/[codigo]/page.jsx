@@ -22,7 +22,7 @@ import CardProductV2 from "@/components/cards/CardProductV2";
 import { ChevronDownIcon, ChevronRightIcon, EllipsisHorizontalIcon, StarIcon } from "@heroicons/react/24/solid";
 import { ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { CreditCardIcon } from "@/components/icons/solid";
-import { useSession } from "next-auth/react";
+import { useSession, getSession } from "next-auth/react";
 import moment from "moment";
 import "moment/locale/es-mx";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
@@ -53,13 +53,15 @@ export default function Page({ params: { codigo } }) {
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isCollapse, setCollapse] = useState(false);
+  const [isFav, setFav] = useState({});
 
   const carrussel = useRef(null);
 
   const [review, setReview] = useState({
     comment: "",
     rating: 0,
-  })
+  });
+
   const dispatch = useDispatch();
 
   const getProducto = async () => {
@@ -87,6 +89,14 @@ export default function Page({ params: { codigo } }) {
     });
 
     setSugguest(recommended);
+
+    await axios.get("/api/favorites/find", {
+      params: {
+        id_producto: data.id_producto
+      }
+    }).then((res) => {
+      setFav(res.data)
+    });
   };
 
   const getComments = async () => {
@@ -113,6 +123,16 @@ export default function Page({ params: { codigo } }) {
     if (quantity > limit) return;
 
     setQuantity(quantity + 1);
+  }
+
+  const handleFavorite = async () => {
+    if (isFav) {
+      await axios.delete(`/api/favorites/${isFav.id_favorito}`).then(() => setFav(null));
+    } else {
+      await axios.post('/api/favorites', {
+        id_producto: product.id_producto
+      }).then((res) => setFav(res.data));
+    }
   }
 
   const submitCommet = async () => {
@@ -473,9 +493,16 @@ export default function Page({ params: { codigo } }) {
             )}
 
             <div className="mt-8 flex justify-evenly tablet:justify-start gap-4">
-              <button className="font-light text-sm uppercase text-gray-500 flex gap-2 items-center group hover:text-red-800">
-                <HeartIcon className="w-4 h-4 text-gray-400 fill-gray-400 group-hover:text-red-800 group-hover:fill-red-800" />
-                Agregar favoritos
+              <button
+                className="font-light text-sm uppercase flex gap-2 items-center group hover:text-red-800"
+                onClick={handleFavorite}
+              >
+                <HeartIcon className={`w-4 h-4 text-gray-400 ${isFav ? "fill-red-800 group-hover:fill-red-800/80" : "fill-gray-400 group-hover:text-red-800 group-hover:fill-red-800 "}`} />
+                <p className={`${isFav ? "text-red-800" : "text-gray-500"}`}>
+                  {
+                    isFav ? "Quitar de favoritos" : "Agregar a Favoritos"
+                  }
+                </p>
               </button>
               <button className="font-light text-sm uppercase text-gray-500 flex gap-2 items-center group hover:text-red-800">
                 <ShareIcon className="w-4 h-4 text-gray-500 fill-gray-500 group-hover:text-red-800 group-hover:fill-red-800" />
@@ -619,7 +646,7 @@ export default function Page({ params: { codigo } }) {
                     <button
                       type="button"
                       onClick={submitCommet}
-                      className="py-2 w-full bg-red-700 hover:bg-red-800 rounded-md text-white text-sm flex items-center justify-center">
+                      className={`py-2 w-full bg-red-700 hover:bg-red-800 rounded-md text-white text-sm flex items-center justify-center ${isLoadingComments ? "opacity-80 pointer-events-none" : ""}`}>
                       {isLoadingComments ? (
                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                           viewBox="0 0 24 24">
@@ -685,7 +712,7 @@ export const MoreOptions = ({ id_comentario, onClick }) => {
     >
       <div
         className={`w-[40px] h-[40px] rounded-full flex items-center justify-center group/option cursor-pointer select-none
-          ${isOpen ? "bg-gray-200" : "hover:bg-gray-100"}  
+          ${isOpen ? "bg-gray-200" : "hover:bg-gray-100"} 
         `}
       >
         <EllipsisHorizontalIcon
