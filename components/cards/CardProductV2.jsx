@@ -6,13 +6,16 @@ import { addToCart } from "@/redux/cart";
 import { useState } from "react";
 import { CheckIcon } from "../icons/regular";
 import { PlusIcon } from "@heroicons/react/24/solid";
+import { notification } from "../toast";
 
 export default function CardProductV2({ product, variant = "" }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const toast = new notification();
   const handleAddToCart = (evt, product) => {
     evt.preventDefault();
     setLoading(true);
+    toast.addedCart();
     dispatch(addToCart(product));
     setTimeout(() => {
       setLoading(false);

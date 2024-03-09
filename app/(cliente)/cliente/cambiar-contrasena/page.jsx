@@ -1,93 +1,40 @@
 "use client";
-import { signOut } from "next-auth/react";
-import { useEffect, useState, useRef } from "react";
-import { InputText } from "@/components/forms/inputs";
-import { formatPhoneNumber } from "@/libs/formatingText";
-import { useSession } from "next-auth/react";
+import { useState } from "react";
 import axios from "axios";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { CheckBadgeIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { notification } from "@/components/toast";
 
 export default function AccountPage() {
-    const [optSelected, setOptSelected] = useState("perfil");
     const [isLoading, setLoading] = useState(false);
+    const toast = new notification();
     const [showPassword, setShowPassword] = useState({
-        password: false,
-        confirmPassword: false
-    });
-    const [isFormChange, setFormChange] = useState(false);
-    const { data: session, update } = useSession({
-        required: true,
-        onUnauthenticated() {
-            signOut();
-        }
-    });
-    const [validation, setValidation] = useState({
-        nombre: "",
-        apellido: "",
-        telefono: "",
-        email: "",
-        password: "",
-        confirmPassword: ""
+        currentPassword: false,
+        newPassword: false
     });
 
-    const [userPool, setUserPool] = useState({
-        nombre: "",
-        apellido: "",
-        email: "",
-        telefono: "",
-        password: "",
-        confirmPassword: ""
-    })
+    const [validation, setValidation] = useState({
+        currentPassword: "",
+        newPassword: ""
+    });
 
     const [user, setUser] = useState({
-        nombre: "",
-        apellido: "",
-        email: "",
-        telefono: "",
-        password: "",
-        confirmPassword: ""
+        currentPassword: "",
+        newPassword: ""
     });
-
-    const alertRef = useRef(null);
-
-    const handleText = (e) => {
-        const { name, value, type } = e.target;
-        if (value !== userPool[name]) {
-            setFormChange(true);
-        } else {
-            setFormChange(false);
-        }
-
-        if (type == "tel") {
-            setUser({ ...user, [name]: formatPhoneNumber(value) });
-        } else {
-            setUser({ ...user, [name]: value });
-        }
-    }
 
     const handlePassword = (e) => {
         const { name, value } = e.target;
         setUser({ ...user, [name]: value });
 
-        if (name === "password") {
-            if (value.length > 0 && value.length < 6) {
-                setFormChange(false);
-                setValidation({ ...validation, password: "La contraseña debe tener al menos 6 caracteres" });
-            } else {
-                setValidation({ ...validation, password: "" });
-                //Bloquear boton si no hay cambios
-                value !== user.confirmPassword ? setFormChange(false) : setFormChange(true);
-            }
+        if (name === "currentPassword") {
+            setValidation({ ...validation, newPassword: "" });
         }
 
-        if (name === "confirmPassword") {
-            if (value !== user.password) {
-                setFormChange(false);
-                setValidation({ ...validation, confirmPassword: "Las contraseñas no coinciden" });
+        if (name === "newPassword") {
+            if (value.length > 0 && value.length < 6) {
+                setValidation({ ...validation, newPassword: "La contraseña debe tener al menos 6 caracteres" });
             } else {
-                setFormChange(true);
-                setValidation({ ...validation, confirmPassword: "" });
+                setValidation({ ...validation, newPassword: "" });
             }
         }
     }
@@ -95,97 +42,33 @@ export default function AccountPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setFormChange(false);
         try {
-            const { data } = await axios.put(`/api/auth/user/${session?.user?.id_usuario}`, {
-                ...user,
-                oldEmail: userPool.email,
-            }).finally(() => {
-                setLoading(false)
-                setFormChange(false);
-                alertRef.current.classList.remove("h-[0px]");
-                alertRef.current.classList.add("h-[40px]");
-
-                setTimeout(() => {
-                    alertRef.current.classList.remove("h-[40px]");
-                    alertRef.current.classList.add("h-[0px]");
-                }, 3000);
-            });
-            if (!data) return;
-
-            setFormChange(false);
-
-            setUser({
-                nombre: data.nombre,
-                apellido: data.apellido,
-                email: data.email,
-                telefono: data.telefono,
-                password: "",
-                confirmPassword: ""
-            });
-
-            setUserPool({
-                nombre: data.nombre,
-                apellido: data.apellido,
-                email: data.email,
-                telefono: data.telefono,
-                password: "",
-                confirmPassword: ""
-            });
-
-            await update({
-                ...session,
-                user: {
-                    ...session.user,
-                    nombre: data.nombre,
-                    apellido: data.apellido,
-                    email: data.email,
-                }
-            });
+            await axios.patch(`/api/auth/user/change-password`, user)
+                .then(res => {
+                    toast.customerSucces("Contraseña actualizada")
+                    setUser({
+                        newPassword: "",
+                        currentPassword: "",
+                    });
+                    setValidation({
+                        currentPassword: "",
+                        newPassword: "",
+                    })
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
         } catch (error) {
-            const { data } = error.response;
-            if (!data) return;
-
+            const response = error?.response;
+            if (!response) return;
+            console.log(response);
             setValidation({
-                nombre: data.error.nombre,
-                apellido: data.error.apellido,
-                telefono: data.error.telefono,
-                email: data.error.email,
-                password: data.error.password,
-                confirmPassword: data.error.confirmPassword
+                currentPassword: response.data.error.currentPassword,
+                newPassword: response.data.error.newPassword
             });
             setLoading(false);
         }
     }
-
-    const getMyAccount = async () => {
-        const { data } = await axios.get(`/api/auth/user/${session?.user?.id_usuario}`);
-
-        if (!data) return;
-
-        setUser({
-            nombre: data.nombre,
-            apellido: data.apellido,
-            email: data.email,
-            telefono: data.telefono,
-            password: "",
-            confirmPassword: ""
-        });
-
-        setUserPool({
-            nombre: data.nombre,
-            apellido: data.apellido,
-            email: data.email,
-            telefono: data.telefono,
-            password: "",
-            confirmPassword: ""
-        });
-    }
-
-    useEffect(() => {
-        getMyAccount();
-    }, [])
-
 
     return (
         <div className="flex justify-center w-full">
@@ -196,16 +79,16 @@ export default function AccountPage() {
                     <div className="grid grid-cols-2 gap-x-4">
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center justify-between">
-                                <label htmlFor="password" className="text-sm text-gray-600 font-bold">Nueva contraseña</label>
+                                <label htmlFor="password" className="text-sm text-gray-600 font-bold">Contraseña actual</label>
                                 {
-                                    user.password.length > 0 && (
+                                    user.newPassword.length > 0 && (
                                         <button
                                             type="button"
                                             className="text-xs text-gray-500 ml-auto cursor-pointer font-semibold flex items-center gap-1"
-                                            onClick={() => setShowPassword({ ...showPassword, password: !showPassword.password })}
+                                            onClick={() => setShowPassword({ ...showPassword, currentPassword: !showPassword.currentPassword })}
                                         >
                                             {
-                                                user.password.length > 0 && (showPassword.password ? (
+                                                user.currentPassword.length > 0 && (showPassword.currentPassword ? (
                                                     <>
                                                         <span>Ocultar</span>
                                                         <EyeSlashIcon className="w-4 h-4 text-gray-500" />
@@ -222,30 +105,30 @@ export default function AccountPage() {
                             </div>
                             <div className="flex flex-col relative pb-6">
                                 <input
-                                    type={`${showPassword.password ? "text" : "password"}`}
-                                    name="password"
-                                    id="password"
-                                    placeholder="Nueva contraseña"
+                                    type={`${showPassword.currentPassword ? "text" : "password"}`}
+                                    name="currentPassword"
+                                    id="currentPassword"
+                                    placeholder="Escribe tu contraseña..."
                                     onChange={handlePassword}
-                                    value={user.password}
+                                    value={user.currentPassword}
                                     className="rounded-sm w-full px-3 py-2 ring-1 ring-gray-300 border-none text-sm placeholder:text-gray-500 focus:border-red-800/60 focus:ring-1 focus:ring-red-800/60" />
                                 <p className="text-xs text-red-600">{
-                                    validation.password
+                                    validation.currentPassword
                                 }</p>
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center justify-between">
-                                <label htmlFor="confirmPassword" className="text-sm text-gray-600 font-bold">Confirmar contraseña</label>
+                                <label htmlFor="confirmPassword" className="text-sm text-gray-600 font-bold">Nueva contraseña</label>
                                 {
-                                    user.confirmPassword.length > 0 && (
+                                    user.newPassword.length > 0 && (
                                         <button
                                             type="button"
                                             className="text-xs text-gray-500 ml-auto cursor-pointer font-semibold flex items-center gap-1"
-                                            onClick={() => setShowPassword({ ...showPassword, confirmPassword: !showPassword.confirmPassword })}
+                                            onClick={() => setShowPassword({ ...showPassword, newPassword: !showPassword.newPassword })}
                                         >
                                             {
-                                                showPassword.confirmPassword ? (
+                                                showPassword.newPassword ? (
                                                     <>
                                                         <span>Ocultar</span>
                                                         <EyeSlashIcon className="w-4 h-4 text-gray-500" />
@@ -263,22 +146,22 @@ export default function AccountPage() {
                             </div>
                             <div className="flex flex-col relative pb-6">
                                 <input
-                                    type={`${showPassword.confirmPassword ? "text" : "password"}`}
-                                    name="confirmPassword"
-                                    id="confirmPassword"
+                                    type={`${showPassword.newPassword ? "text" : "password"}`}
+                                    name="newPassword"
+                                    id="newPassword"
                                     onChange={handlePassword}
-                                    placeholder="Vuelve a escribir tu contraseña"
-                                    value={user.confirmPassword}
+                                    placeholder="Escribir tu nueva contraseña..."
+                                    value={user.newPassword}
                                     className="rounded-sm w-full px-3 py-2 ring-1 ring-gray-300 border-none text-sm placeholder:text-gray-500 focus:border-red-800/60 focus:ring-1 focus:ring-red-800/60" />
                                 <p className="text-xs text-red-600">{
-                                    validation.confirmPassword
+                                    validation.newPassword
                                 }</p>
                             </div>
                         </div>
                     </div>
                     <button
                         type="submit"
-                        disabled={!isFormChange}
+                        disabled={isLoading}
                         className={`w-[150px] flex gap-2 items-center text-sm justify-center px-4 py-1 bg-red-800/90 active:scale-95 hover:bg-red-800 text-white rounded-sm 
                         disabled:opacity-80 disabled:cursor-not-allowed disabled:pointer-events-none`}
                     >

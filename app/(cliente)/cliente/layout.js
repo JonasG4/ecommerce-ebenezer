@@ -4,10 +4,7 @@ import { usePathname } from "next/navigation";
 
 export default function ClienteLayout({ children }) {
   const pathname = usePathname();
-  const optSelected = "perfil";
-  const setOptSelected = () => {
-    console.log("hola");
-  };
+
   return (
     <div className="flex justify-center w-full my-6">
       <div className="w-[90%] monitor:w-[1350px] grid grid-cols-[220px_1fr] gap-y-6">

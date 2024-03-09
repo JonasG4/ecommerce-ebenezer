@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import ButtonAddCar from "@/components/buttons/ButtonAddCar";
 import { calcularPorcentaje } from "@/libs/transformString";
+import { notification } from "../toast";
+const toast = new notification();
 
 
 export default function CardProduct({product}) {

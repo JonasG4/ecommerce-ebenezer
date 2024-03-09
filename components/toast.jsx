@@ -6,17 +6,17 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/solid";
 import toast, { Toaster } from "react-hot-toast";
+import Link from "next/link";
 
 export const ToastGlobal = () => {
-  return <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />;
+  return <Toaster position="bottom-right" toastOptions={{ duration: 4000 }} />;
 };
 
 export const toastSuccess = (msg, title, subtitle) => {
   toast.custom((t) => (
     <div
-      className={`${
-        t.visible ? "animate-enter" : "animate-leave"
-      } max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+      className={`${t.visible ? "animate-enter" : "animate-leave"
+        } max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
     >
       <div className="flex-1 w-0 p-4">
         <div className="flex items-start">
@@ -49,13 +49,12 @@ export class notification {
   success(msg, title = "Creado con éxito") {
     this.toast.custom((t) => (
       <div
-        className={`${
-          t.visible ? "animate-enter" : "animate-leave"
-        } max-w-xs w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+        className={`${t.visible ? "animate-enter" : "animate-leave"
+          } max-w-xs w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
       >
         <div className="flex-1 w-0 p-4">
           <div className="flex items-start">
-          <div className="flex-shrink-0 pt-0.5">
+            <div className="flex-shrink-0 pt-0.5">
               <CheckCircleIcon className="w-6 text-indigo-500" />
             </div>
             <div className="ml-3 flex-1">
@@ -77,9 +76,8 @@ export class notification {
   error(msg, title = "Error") {
     this.toast.custom((t) => (
       <div
-        className={`${
-          t.visible ? "animate-enter" : "animate-leave"
-        } max-w-xs w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-red-600 ring-opacity-25`}
+        className={`${t.visible ? "animate-enter" : "animate-leave"
+          } max-w-xs w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-red-600 ring-opacity-25`}
       >
         <div className="flex-1 w-0 p-4">
           <div className="flex items-start">
@@ -100,5 +98,60 @@ export class notification {
         </div>
       </div>
     ));
+  }
+
+  customerSucces(title = "Exitoso") {
+    this.toast.custom((t) => (
+      <div
+        className={`${t.visible ? "animate-enter" : "animate-leave"
+          } max-w-xs w-full bg-white shadow-lg rounded-md pointer-events-auto flex ring-1 ring-gray-200`}
+      >
+        <div className="flex-1 w-0 p-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 pt-0.5">
+              <CheckCircleIcon className="w-6 text-green-600" />
+            </div>
+            <div className="ml-3 flex-1">
+              <p className="text-sm font-semibold text-gray-800">{title}</p>
+            </div>
+          </div>
+        </div>
+        <div
+          onClick={() => this.toast.dismiss(t.id)}
+          className="flex items-center mx-4"
+        >
+          <XMarkIcon className="w-4 text-slate-600 cursor-pointer" />
+        </div>
+      </div>
+    ));
+  }
+
+  addedCart(title = "Agregado al carrito.") {
+    this.toast.custom((t) => (
+      <div
+        className={`${t.visible ? "animate-enter" : "animate-leave"
+          } max-w-xs w-full bg-white shadow-lg rounded-md pointer-events-auto flex ring-1 ring-gray-400`}
+      >
+        <div className="flex-1 w-0 p-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 pt-0.5">
+              <CheckCircleIcon className="w-6 text-green-600" />
+            </div>
+            <div className="flex flex-col ml-3 flex-1">
+              <p className="text-sm font-medium text-gray-800">{title}</p>
+            </div>
+            <Link href={"/carrito"} className="text-red-600 ml-auto hover:underline text-sm">Ver carrito.</Link>
+          </div>
+        </div>
+        <div
+          onClick={() => this.toast.dismiss(t.id)}
+          className="flex items-center mx-4"
+        >
+          <XMarkIcon className="w-4 text-slate-600 cursor-pointer" />
+        </div>
+      </div>
+    ), {
+      duration: 6000
+    });
   }
 }

@@ -1,21 +1,45 @@
 import prismadb from "@/libs/prismadb";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "pages/api/auth/[...nextauth]"
+
 import bcrypt from "bcryptjs";
-import { v4 as uuid } from "uuid";
 
-export async function PATCH(request, { params: { id } }) {
+export async function PATCH(request) {
     const usuario = await request.json();
+    const { user: token } = await getServerSession(authOptions);
 
-    const password = usuario?.password?.trim();
-    const newPassword = usuario?.password?.trim();
+    if (!token) return NextResponse.json("El token ha caducado", { status: "401" })
+
+    const currentPassword = usuario?.currentPassword?.trim();
+    const newPassword = usuario?.newPassword?.trim();
 
     const error = {
-        password: "",
+        currentPassword: "",
+        newPassword: "",
     };
 
     //Validacion
-    if (password.length > 0 && password.length < 6) {
-        error.password = "La contraseña debe tener al menos 6 caracteres";
+
+    const isUserExist = await prismadb.Usuarios.findFirst({
+        where: {
+            codigo: token.id_usuario
+        },
+        select: {
+            password: true,
+        }
+    });
+
+    if (!isUserExist) return NextResponse.json("Este usuario no existe");
+
+    const isValid = await bcrypt.compare(currentPassword, isUserExist.password);
+
+    if (!isValid) {
+        error.currentPassword = "La contraseña es incorrecta"
+    }
+
+    if (newPassword.length > 0 && newPassword.length < 6) {
+        error.newPassword = "La contraseña debe tener al menos 6 caracteres";
     }
 
     if (Object.values(error).some((err) => err !== "")) {
@@ -28,22 +52,16 @@ export async function PATCH(request, { params: { id } }) {
 
     let hashedPassword = undefined;
 
-    if (password.trim().length > 0) {
-        const salt = await bcrypt.genSalt(10);
-        hashedPassword = await bcrypt.hash(password, salt);
-    }
+    const salt = await bcrypt.genSalt(10);
+    hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    const user = await prismadb.Usuarios.update({
+    await prismadb.Usuarios.update({
         where: {
-            codigo: id,
+            codigo: token.id_usuario,
         },
         data: {
-            nombre: nombre.trim(),
-            apellido: apellido.trim(),
-            telefono: telefono.trim(),
-            email: email.trim(),
             password: hashedPassword,
         },
     });
-    return NextResponse.json(user);
+    return NextResponse.json("ok", { status: 200 });
 }
