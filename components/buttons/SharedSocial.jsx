@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { FacebookSquareIcon, MessengerIcon, TelegramIcon, WhatsappSquareIcon } from "../icons/regular";
 
-export default function SharedSocial({ productName }) {
+export default function SharedSocial({ productName, productCode }) {
 
     const [isOpen, setOpen] = useState(false)
 
     // const linkurl = "https://www.comercial-ebenezer.com/producto/ventilador-oster-obf851-la013"
     // const linkname = "Comercial Eben Ezer"
 
+    // https://www.addtoany.com/add_to/facebook?linkurl=https://www.comercial-ebenezer.com/producto/cama-indufoam-dream-sleeper-tamano-king&linkname=Cama Indufoam Dream Sleeper Tamaño KING;
     const modal = useRef(null);
 
     useEffect(() => {
@@ -46,7 +47,7 @@ export default function SharedSocial({ productName }) {
                         <ul className="grid grid-cols-2 gap-1">
                             <li>
                                 <Link
-                                    href={`https://www.addtoany.com/add_to/facebook?linkurl=https://www.comercial-ebenezer.com/producto/${productName};linkname=${productName};`}
+                                    href={`https://www.addtoany.com/add_to/facebook?linkurl=https://www.comercial-ebenezer.com/producto/${productCode}&inkname=${productName};`}
                                     className="flex gap-2 items-center p-2 hover:bg-gray-100 duration-150 ease-in-out rounded-sm active:scale-95"
                                 >
                                     <FacebookSquareIcon className={"w-4 h-4 fill-blue-600"} />
@@ -55,7 +56,7 @@ export default function SharedSocial({ productName }) {
                             </li>
                             <li>
                                 <Link
-                                    href={`https://www.addtoany.com/add_to/whatsapp?linkurl=https://www.comercial-ebenezer.com/producto/${productName};linkname=${productName};`}
+                                    href={`https://www.addtoany.com/add_to/whatsapp?linkurl=https://www.comercial-ebenezer.com/producto/${productCode}&linkname=${productName};`}
                                     className="flex gap-2 items-center p-2 hover:bg-gray-100 duration-150 ease-in-out rounded-sm active:scale-95"
                                 >
                                     <WhatsappSquareIcon className={"w-4 h-4 fill-green-600"} />
@@ -64,7 +65,7 @@ export default function SharedSocial({ productName }) {
                             </li>
                             <li>
                                 <Link
-                                    href={`https://www.addtoany.com/add_to/telegram?linkurl=https://www.comercial-ebenezer.com/producto/${productName};linkname=${productName};`}
+                                    href={`https://www.addtoany.com/add_to/telegram?linkurl=https://www.comercial-ebenezer.com/producto/${productCode}&linkname=${productName};`}
                                     className="flex gap-2 items-center p-2 hover:bg-gray-100 duration-150 ease-in-out rounded-sm active:scale-95"
                                 >
                                     <TelegramIcon className={"w-4 h-4 fill-sky-600"} />
@@ -73,7 +74,7 @@ export default function SharedSocial({ productName }) {
                             </li>
                             <li>
                                 <Link
-                                    href={`https://www.addtoany.com/add_to/facebook_messenger?linkurl=https://www.comercial-ebenezer.com/producto/${productName};linkname=${productName};`}
+                                    href={`https://www.addtoany.com/add_to/facebook_messenger?linkurl=https://www.comercial-ebenezer.com/producto/${productCode}&linkname=${productName};`}
                                     className="flex gap-2 items-center p-2 hover:bg-gray-100 duration-150 ease-in-out rounded-sm active:scale-95"
                                 >
                                     <MessengerIcon className={"w-4 h-4 fill-sky-600"} />
