@@ -1,5 +1,5 @@
 import axios from 'axios'
-import Content from './content'
+import Content from '@/app/(cliente)/producto/[codigo]/Content'
 import prismadb from '@/libs/prismadb'
 
 
