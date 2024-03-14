@@ -174,7 +174,7 @@ export const UserButton = () => {
           <ul role="user-menu" className="py-3 bg-white">
             <li>
               <Link
-                href={"/cuenta"}
+                href={"/cliente/perfil"}
                 className="flex items-center gap-2 px-4 py-2 w-full rounded-sm cursor-pointer hover:bg-gray-200"
               >
                 <UserIcon className="w-4 h-4 fill-gray-500" />
@@ -184,7 +184,7 @@ export const UserButton = () => {
             </li>
             <li>
               <Link
-                href={"/cuenta/pedidos"}
+                href={"/cliente/pedidos"}
                 className="flex items-center gap-2 px-4 py-2 w-full rounded-sm cursor-pointer hover:bg-gray-200"
               >
                 <ShoppingBagIcon className="w-4 h-4 text-gray-500" />
