@@ -12,7 +12,6 @@ export async function GET(request, { params: { codigo } }) {
       id_categoria: true,
       nombre: true,
       codigo: true,
-      imagen: true,
       is_active: true,
       Subcategorias: {
         where: {
@@ -95,7 +94,6 @@ export async function GET(request, { params: { codigo } }) {
           id_categoria: true,
           nombre: true,
           codigo: true,
-          imagen: true,
           is_active: true,
           created_at: true,
           updated_at: true,
