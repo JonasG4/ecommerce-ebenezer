@@ -27,7 +27,6 @@ export async function GET(request, { params: { codigo } }) {
       nombre: true,
       codigo: true,
       descripcion: true,
-      imagen: true,
       is_active: true,
       Subcategorias: {
         select: {
